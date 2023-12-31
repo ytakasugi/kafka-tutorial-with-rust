@@ -1,0 +1,22 @@
+[package]
+name = "rust-kafka"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rdkafka = "0.36.0"
+time = "0.3"
+tokio = { version = "1.35", features = ["rt", "rt-multi-thread", "macros"] }
+futures = "0.3"
+rand = "0.8"
+env_logger = "0.10"
+
+[[bin]]
+name = "producer"
+path = "src/producer.rs"
+
+[[bin]]
+name = "consumer"
+path = "src/consumer.rs"
