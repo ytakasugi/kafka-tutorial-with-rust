@@ -3,7 +3,6 @@
 version: '3'
 
 services:
-
   # zookeeper cluster
   cp-zookeeper1:
     image: confluentinc/cp-zookeeper:latest
@@ -51,17 +50,17 @@ services:
   # kafka-topics --create --topic Topic1 --bootstrap-server localhost:9092  --partitions 3 --replication-factor 3 --if-not-exists
   # kafka-topics --bootstrap-server localhost:9092 --list
   # kafka-topics --bootstrap-server localhost:9092 --topic Topic1 --describe
-  # kafka-console-producer --broker-list localhost:9092 --topic Topic1
-  # kafka-console-consumer --bootstrap-server localhost:9092 --topic Topic1
+  # kafka-console-producer --broker-list localhost:9093 --topic Topic1
+  # kafka-console-consumer --bootstrap-server localhost:9094 --topic Topic1
   cp-kafka1:
     image: confluentinc/cp-kafka:latest
     container_name: cp-kafka1
     ports:
-      - "19092:19092"
+      - "29092:29092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: cp-zookeeper1:12181,cp-zookeeper2:22181,cp-zookeeper3:32181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://cp-kafka1:9092,PLAINTEXT_HOST://localhost:19092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://cp-kafka1:9092,PLAINTEXT_HOST://localhost:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
     depends_on:
@@ -72,11 +71,11 @@ services:
     image: confluentinc/cp-kafka:latest
     container_name: cp-kafka2
     ports:
-      - "19093:19093"
+      - "29093:29093"
     environment:
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: cp-zookeeper1:12181,cp-zookeeper2:22181,cp-zookeeper3:32181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://cp-kafka2:9093,PLAINTEXT_HOST://localhost:19093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://cp-kafka2:9093,PLAINTEXT_HOST://localhost:29093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
     depends_on:
@@ -87,11 +86,11 @@ services:
     image: confluentinc/cp-kafka:latest
     container_name: cp-kafka3
     ports:
-      - "19094:19094"
+      - "29094:29094"
     environment:
       KAFKA_BROKER_ID: 3
       KAFKA_ZOOKEEPER_CONNECT: cp-zookeeper1:12181,cp-zookeeper2:22181,cp-zookeeper3:32181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://cp-kafka3:9094,PLAINTEXT_HOST://localhost:19094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://cp-kafka3:9094,PLAINTEXT_HOST://localhost:29094
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
     depends_on:
@@ -102,11 +101,11 @@ services:
     image: confluentinc/cp-kafka:latest
     container_name: cp-kafka4
     ports:
-      - "19095:19095"
+      - "29095:29095"
     environment:
       KAFKA_BROKER_ID: 4
       KAFKA_ZOOKEEPER_CONNECT: cp-zookeeper1:12181,cp-zookeeper2:22181,cp-zookeeper3:32181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://cp-kafka4:9095,PLAINTEXT_HOST://localhost:19095
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://cp-kafka4:9095,PLAINTEXT_HOST://localhost:29095
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
     depends_on:
@@ -117,11 +116,11 @@ services:
     image: confluentinc/cp-kafka:latest
     container_name: cp-kafka5
     ports:
-      - "19096:19096"
+      - "29096:29096"
     environment:
       KAFKA_BROKER_ID: 5
       KAFKA_ZOOKEEPER_CONNECT: cp-zookeeper1:12181,cp-zookeeper2:22181,cp-zookeeper3:32181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://cp-kafka5:9096,PLAINTEXT_HOST://localhost:19096
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://cp-kafka5:9096,PLAINTEXT_HOST://localhost:29096
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
     depends_on:
