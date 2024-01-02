@@ -26,15 +26,28 @@ impl<'a> KafkaProducer<'a> {
 #[tokio::main]
 async fn main() {
     let producer: KafkaProducer = KafkaProducer::new("RUST-KAFKA-TOPIC-1");
+    let mut tasks = Vec::new();
 
-    producer
-        .producer
-        .send(
-            FutureRecord::<(), _>::to(producer.topic).payload("Hello Rust and Kafka"),
-            Timeout::Never,
-        )
-        .await
-        .expect("Failed to produce");
+    for _ in 0..10 {
+        let message = "kafka tutorial with Rust".to_string();
+        let producer_clone = producer.producer.clone();
 
-    println!("Message sent");
+        let task = tokio::spawn(async move {
+            let record = FutureRecord::to(producer.topic)
+                .key("kafka-tutorial-with-rust-key")
+                .payload(&message);
+
+            match producer_clone.send(record, Timeout::Never).await {
+                Ok(delivery) => println!("Sent: {:?}", delivery),
+                Err((e, _)) => eprintln!("Error: {:?}", e),
+            }
+        });
+        tasks.push(task);
+    }
+
+    for task in tasks {
+        task.await.expect("Task failed to complete");
+    }
+
+    println!("All messages sent");
 }

@@ -1,7 +1,6 @@
+use futures::StreamExt;
 use rdkafka::consumer::{Consumer, StreamConsumer};
 use rdkafka::{ClientConfig, Message};
-
-use futures::TryStreamExt;
 
 struct KafkaConsumer<'a> {
     consumer: StreamConsumer,
@@ -30,24 +29,24 @@ async fn main() {
 
     consumer.consumer.subscribe(&[consumer.topic]).unwrap();
 
-    let stream_processor = consumer.consumer.stream().try_for_each(|msg| async move {
-        println!(
-            "Received message from topic: {}, partition: {}, offset: {}, timestamp: {:?}",
-            msg.topic(),
-            msg.partition(),
-            msg.offset(),
-            msg.timestamp()
-        );
+    while let Some(message) = consumer.consumer.stream().next().await {
+        match message {
+            Ok(msg) => {
+                let tailored_msg = match msg.payload_view::<str>() {
+                    Some(Ok(payload)) => {
+                        format!("Prepared payload: {}, len: {}", payload, payload.len())
+                    }
+                    Some(Err(_)) => "Message payload is not a string".to_owned(),
+                    None => "No payload".to_owned(),
+                };
 
-        tokio::time::sleep(tokio::time::Duration::from_millis(3_000)).await;
-        let r = match msg.payload_view::<str>() {
-            Some(Ok(payload)) => format!("Payload len for {} is {}", payload, payload.len()),
-            Some(Err(_)) => "Message payload is not a string".to_owned(),
-            None => "No payload".to_owned(),
-        };
-        println!("{}", r);
-        Ok(())
-    });
-
-    stream_processor.await.expect("stream processing failed");
+                tokio::spawn(async move {
+                    println!("process the msg: {}", &tailored_msg[..42]);
+                    tokio::time::sleep(tokio::time::Duration::from_millis(10_000)).await;
+                    println!("Done!");
+                });
+            }
+            Err(e) => eprintln!("Error receiving message: {:?}", e),
+        }
+    }
 }
