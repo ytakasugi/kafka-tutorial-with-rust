@@ -56,6 +56,7 @@ services:
     image: confluentinc/cp-kafka:latest
     container_name: cp-kafka1
     ports:
+      - "9092:9092"
       - "29092:29092"
     environment:
       KAFKA_BROKER_ID: 1
@@ -71,6 +72,7 @@ services:
     image: confluentinc/cp-kafka:latest
     container_name: cp-kafka2
     ports:
+      - "9093:9093"
       - "29093:29093"
     environment:
       KAFKA_BROKER_ID: 2
@@ -86,6 +88,7 @@ services:
     image: confluentinc/cp-kafka:latest
     container_name: cp-kafka3
     ports:
+      - "9094:9094"
       - "29094:29094"
     environment:
       KAFKA_BROKER_ID: 3
@@ -101,6 +104,7 @@ services:
     image: confluentinc/cp-kafka:latest
     container_name: cp-kafka4
     ports:
+      - "9095:9095"
       - "29095:29095"
     environment:
       KAFKA_BROKER_ID: 4
@@ -116,6 +120,7 @@ services:
     image: confluentinc/cp-kafka:latest
     container_name: cp-kafka5
     ports:
+      - "9096:9096"
       - "29096:29096"
     environment:
       KAFKA_BROKER_ID: 5
@@ -127,3 +132,59 @@ services:
       - cp-zookeeper1
       - cp-zookeeper2
       - cp-zookeeper3
+  # Schema Registry
+  cp-schema-registry1:
+    image: confluentinc/cp-schema-registry:latest
+    container_name: cp-schema-registry1
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: cp-schema-registry1
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "cp-kafka1:9092,cp-kafka2:9093,cp-kafka3:9094,cp-kafka4:9095,cp-kafka5:9096"
+      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
+      SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL: ERROR
+    depends_on:
+      - cp-kafka1
+      - cp-kafka2
+      - cp-kafka3
+      - cp-kafka4
+      - cp-kafka5
+    # broker の登録が完了する前にタイムアウトでコンテナが終了してしまう場合があるので restart: always を指定する
+    restart: always
+  cp-schema-registry2:
+    image: confluentinc/cp-schema-registry:latest
+    container_name: cp-schema-registry2
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: cp-schema-registry2
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "cp-kafka1:9092,cp-kafka2:9093,cp-kafka3:9094,cp-kafka4:9095,cp-kafka5:9096"
+      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
+      SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL: ERROR
+    depends_on:
+      - cp-schema-registry1
+    # broker の登録が完了する前にタイムアウトでコンテナが終了してしまう場合があるので restart: always を指定する
+    restart: always
+  cp-schema-registry3:
+    image: confluentinc/cp-schema-registry:latest
+    container_name: cp-schema-registry3
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: cp-schema-registry3
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "cp-kafka1:9092,cp-kafka2:9093,cp-kafka3:9094,cp-kafka4:9095,cp-kafka5:9096"
+      SCHEMA_REGISTRY_LISTENERS: "http://0.0.0.0:8081"
+      SCHEMA_REGISTRY_LOG4J_ROOT_LOGLEVEL: ERROR
+    depends_on:
+      - cp-schema-registry1
+    # broker の登録が完了する前にタイムアウトでコンテナが終了してしまう場合があるので restart: always を指定する
+    restart: always
+  # http://localhost:1936/haproxy-cp-schema-registry?stats
+  haproxy-cp-schema-registry:
+    image: haproxy:latest
+    container_name: haproxy-cp-schema-registry
+    ports:
+      - "1936:1936"
+      - "8081:8081"
+    environment:
+      - TZ=Asia/Tokyo
+    volumes:
+      - ./docker/cp-schema-registry/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      - cp-schema-registry1
+      - cp-schema-registry2
+      - cp-schema-registry3
